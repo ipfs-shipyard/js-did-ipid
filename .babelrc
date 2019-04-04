@@ -1,0 +1,8 @@
+{
+    "presets": [
+        "babel-preset-moxy/lib"
+    ],
+    "plugins": [
+        "@babel/plugin-proposal-private-methods"
+    ]
+}
