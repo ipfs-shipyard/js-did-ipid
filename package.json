@@ -2,7 +2,8 @@
   "name": "did-ipid",
   "version": "0.0.0",
   "description": "The IPID DID method implementation in JavaScript",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "module": "es/index.js",
   "homepage": "https://github.com/ipfs-shipyard/js-did-ipid#readme",
   "license": "MIT",
   "repository": {
@@ -29,8 +30,8 @@
     "build:commonjs": "BABEL_ENV=commonjs babel src -d lib",
     "build:es": "BABEL_ENV=es babel src -d es",
     "build": "npm run build:commonjs && npm run build:es",
-    "test": "jest",
-    "lint": "eslint .",
+    "test": "jest --coverage",
+    "lint": "eslint . --ignore-path .gitignore .",
     "prerelease": "npm t && npm run lint && npm run build",
     "release": "standard-version"
   },
@@ -57,16 +58,7 @@
     ]
   },
   "jest": {
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "./src/**/*.js"
-    ],
-    "testRegex": "/__tests__/.*\\.test\\.js$",
-    "testPathIgnorePatterns": [
-      "/lib/",
-      "/es/",
-      "/node_modules/"
-    ]
+    "testRegex": "/__tests__/.*\\.test\\.js$"
   },
   "peerDependencies": {
     "ipfs": "^0.34.4"
