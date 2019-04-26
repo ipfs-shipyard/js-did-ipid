@@ -30,7 +30,7 @@
     "build:commonjs": "BABEL_ENV=commonjs babel src -d lib",
     "build:es": "BABEL_ENV=es babel src -d es",
     "build": "npm run build:commonjs && npm run build:es",
-    "test": "jest --coverage",
+    "test": "jest",
     "lint": "eslint . --ignore-path .gitignore .",
     "prerelease": "npm t && npm run lint && npm run build",
     "release": "standard-version"
@@ -58,6 +58,7 @@
     ]
   },
   "jest": {
+    "collectCoverage": true,
     "testRegex": "/__tests__/.*\\.test\\.js$",
     "testPathIgnorePatterns": [
       "/lib/",
