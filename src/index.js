@@ -3,11 +3,17 @@ import createDocument from './document';
 import { generateRandomString, generateDid, parseDid, pemToBuffer } from './utils';
 import { UnavailableIpfs, InvalidDid, IllegalCreate } from './utils/errors';
 
+export const getDid = async (pem) => {
+    const key = await pemToBuffer(pem);
+
+    return generateDid(key);
+};
+
 class Ipid {
     #ipfs;
     #lifetime;
 
-    constructor({ ipfs, lifetime }) {
+    constructor(ipfs, lifetime) {
         this.#ipfs = ipfs;
         this.#lifetime = lifetime || '87600h';
     }
@@ -26,13 +32,12 @@ class Ipid {
     }
 
     async create(pem, operations) {
-        const key = await pemToBuffer(pem);
-        const did = await generateDid(key);
+        const did = await getDid(pem);
 
         try {
             await this.resolve(did);
         } catch (e) {
-            const document = await createDocument(key);
+            const document = createDocument(did);
 
             operations(document);
 
@@ -43,10 +48,10 @@ class Ipid {
     }
 
     async update(pem, operations) {
-        const key = await pemToBuffer(pem);
-        const did = await generateDid(key);
+        const did = await getDid(pem);
+
         const content = await this.resolve(did);
-        const document = await createDocument(key, content);
+        const document = createDocument(did, content);
 
         operations(document);
 
@@ -99,7 +104,7 @@ const createIpid = async (ipfs, { lifetime } = {}) => {
         throw new UnavailableIpfs();
     }
 
-    return new Ipid({ ipfs, lifetime });
+    return new Ipid(ipfs, lifetime);
 };
 
 export default createIpid;

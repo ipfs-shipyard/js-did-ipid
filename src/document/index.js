@@ -8,7 +8,7 @@ import { generateDocument, isEquivalentId } from './utils';
 class Document {
     #content;
 
-    constructor({ content }) {
+    constructor(content) {
         this.#content = {
             publicKey: [],
             authentication: [],
@@ -95,12 +95,12 @@ class Document {
     }
 }
 
-const createDocument = async (key, content) => {
+const createDocument = (did, content) => {
     if (!content) {
-        content = await generateDocument(key);
+        content = generateDocument(did);
     }
 
-    return new Document({ content });
+    return new Document(content);
 };
 
 export default createDocument;
