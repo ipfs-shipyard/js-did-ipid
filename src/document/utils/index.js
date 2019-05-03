@@ -1,5 +1,5 @@
 import { isString } from 'lodash';
-import { generateDid, generateRandomString } from '../../utils';
+import { generateRandomString } from '../../utils';
 
 export const createId = (did, fragment, separator) => {
     fragment = fragment || generateRandomString();
@@ -18,12 +18,8 @@ export const isEquivalentId = (id1, id2, separator) => {
     return id1 === id2;
 };
 
-export const generateDocument = async (key) => {
-    const did = await generateDid(key);
-
-    return {
-        '@context': 'https://w3id.org/did/v1',
-        id: did,
-        created: new Date().toISOString(),
-    };
-};
+export const generateDocument = (did) => ({
+    '@context': 'https://w3id.org/did/v1',
+    id: did,
+    created: new Date().toISOString(),
+});

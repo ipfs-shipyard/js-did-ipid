@@ -1,5 +1,5 @@
 import createDocument from '../';
-import { mockKey, mockContent, mockPublickKey1, mockPublickKey2, mockService1, mockService2 } from './mocks';
+import { mockDid, mockContent, mockPublickKey1, mockPublickKey2, mockService1, mockService2 } from './mocks';
 
 global.Date = class Date {
     constructor() {
@@ -18,14 +18,14 @@ beforeEach(() => {
 
 describe('createDocument', () => {
     it('should create document from scratch', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
 
         expect(document.getContent()).toEqual(mockContent);
     });
 
     it('should create document from provided content', async () => {
         const content = { ...mockContent, created: '2019-01-01' };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         expect(document.getContent()).toEqual(content);
     });
@@ -34,7 +34,7 @@ describe('createDocument', () => {
 describe('getContent', () => {
     it('should remove unnecessary properties', async () => {
         const content = { ...mockContent, publicKey: [], service: undefined };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         expect(document.getContent()).toEqual(mockContent);
     });
@@ -42,7 +42,7 @@ describe('getContent', () => {
 
 describe('addPublicKey', () => {
     it('should add public key successfully', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
         const pk = document.addPublicKey({
             type: 'myType',
             publicKeyHex: '1A2B3C',
@@ -64,7 +64,7 @@ describe('addPublicKey', () => {
     });
 
     it('should not accept duplicate ids', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
 
         expect(() => {
             document.addPublicKey({
@@ -83,7 +83,7 @@ describe('addPublicKey', () => {
     });
 
     it('should not accept publicKey without type', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
 
         expect(() =>
             document.addPublicKey({
@@ -94,7 +94,7 @@ describe('addPublicKey', () => {
     });
 
     it('should not accept publicKey without a `publicKey` prefixed property', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
 
         expect(() =>
             document.addPublicKey({
@@ -105,7 +105,7 @@ describe('addPublicKey', () => {
     });
 
     it('should not accept publicKey with multiple properties prefixed with `publicKey`', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
 
         expect(() =>
             document.addPublicKey({
@@ -118,7 +118,7 @@ describe('addPublicKey', () => {
     });
 
     it('should not accept publicKey with an invalid value encoding', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
 
         expect(() =>
             document.addPublicKey({
@@ -132,7 +132,7 @@ describe('addPublicKey', () => {
 
 describe('revokePublicKey', () => {
     it('should revoke publicKey with full id successfully', async () => {
-        const document = await createDocument(mockKey, mockContent);
+        const document = await createDocument(mockDid, mockContent);
 
         document.revokePublicKey('did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1');
         expect(document.getContent()).toEqual({ ...mockContent });
@@ -149,7 +149,7 @@ describe('revokePublicKey', () => {
 
     it('should revoke publicKey with short id successfully', async () => {
         const content = { ...mockContent, publicKey: [mockPublickKey1, mockPublickKey2] };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         document.revokePublicKey('PK1');
 
@@ -166,7 +166,7 @@ describe('revokePublicKey', () => {
             publicKey: [mockPublickKey1, mockPublickKey2],
             authentication: ['did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1'],
         };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         document.revokePublicKey('PK1');
 
@@ -182,7 +182,7 @@ describe('addAuthentication', () => {
     it('should add authentication successfully', async () => {
         const id = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
         const content = { ...mockContent, publicKey: [mockPublickKey1] };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         const auth = document.addAuthentication(id);
 
@@ -197,7 +197,7 @@ describe('addAuthentication', () => {
     it('should add authentication with short id successfully', async () => {
         const id = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
         const content = { ...mockContent, publicKey: [mockPublickKey1] };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         const auth = document.addAuthentication('PK1');
 
@@ -213,7 +213,7 @@ describe('addAuthentication', () => {
     it('should fail if same id already exists', async () => {
         const id = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
         const content = { ...mockContent, publicKey: [mockPublickKey1], authentication: [id] };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         expect(() => document.addAuthentication(id)).toThrow('Authentication with same did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1 already exists.');
     });
@@ -221,14 +221,14 @@ describe('addAuthentication', () => {
     it('should fail if no publicKey with same id', async () => {
         const id = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
         const content = { ...mockContent };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         expect(() => document.addAuthentication(id)).toThrow('Invalid authentication');
     });
 
     it('should fail auth is not a string', async () => {
         const content = { ...mockContent, publicKey: [mockPublickKey1] };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         expect(() => document.addAuthentication({ id: 'PK1' })).toThrow('Invalid authentication');
     });
@@ -238,7 +238,7 @@ describe('removeAuthentication', () => {
     it('should remove authentication successfully', async () => {
         const id = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
         const content = { ...mockContent, authentication: [id] };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         document.removeAuthentication(id);
 
@@ -249,7 +249,7 @@ describe('removeAuthentication', () => {
         const id1 = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK1';
         const id2 = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#PK2';
         const content = { ...mockContent, publicKey: [mockPublickKey1, mockPublickKey2] };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         document.removeAuthentication(id1);
         expect(document.getContent()).toEqual(content);
@@ -267,7 +267,7 @@ describe('removeAuthentication', () => {
 
 describe('addService', () => {
     it('should add service successfully', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
         const srvc = document.addService({
             type: 'myServiceType',
             serviceEndpoint: 'http://service.foo.bar',
@@ -288,7 +288,7 @@ describe('addService', () => {
     });
 
     it('should not accept duplicate ids', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
 
         expect(() => {
             document.addService({
@@ -305,7 +305,7 @@ describe('addService', () => {
     });
 
     it('should not accept service without type', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
 
         expect(() =>
             document.addService({
@@ -315,7 +315,7 @@ describe('addService', () => {
     });
 
     it('should not accept service without serviceEndpoint', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
 
         expect(() =>
             document.addService({
@@ -325,7 +325,7 @@ describe('addService', () => {
     });
 
     it('should accept service with additional properties', async () => {
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
 
         document.addService({ ...mockService1, id: 'Service1', foo: 'bar' });
 
@@ -336,7 +336,7 @@ describe('addService', () => {
 describe('removeService', () => {
     it('should remove service with full id successfully', async () => {
         const fullId = 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG;Service1';
-        const document = await createDocument(mockKey);
+        const document = await createDocument(mockDid);
 
         document.removeService(fullId);
         expect(document.getContent()).toEqual(mockContent);
@@ -354,7 +354,7 @@ describe('removeService', () => {
 
     it('should remove service with short id successfully', async () => {
         const content = { ...mockContent, service: [mockService1, mockService2] };
-        const document = await createDocument(mockKey, content);
+        const document = await createDocument(mockDid, content);
 
         document.removeService('Service2');
 

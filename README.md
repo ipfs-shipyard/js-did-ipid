@@ -30,7 +30,10 @@ If you target older browsers please make sure to transpile accordingly.
 ## Usage
 
 ```js
-import createIpid from 'did-ipid';
+import createIpid, { getDid } from 'did-ipid';
+
+const did = await getDid(pem);
+//=> Returns the DID associated to a private key in PEM format.
 
 const ipid = await createIpid(ipfs);
 
@@ -69,6 +72,26 @@ const didDocument = await ipid.update(pem, (document) => {
 ```
 
 ## API
+
+### getDid(pem)
+
+Returns the DID associated to a private key in PEM format.
+
+#### pem
+
+Type: `String`
+
+A private key in PEM format.
+
+Supported formats: `pkcs1-pem` or `pkcs8-pem`.
+
+Example:
+```js
+-----BEGIN RSA PRIVATE KEY-----
+MIICXQIBAAKBgQDCQZyRCPMcBPL2J2SuI2TduR7sy28wmcRzfj8fXQTbj1zJURku
+...
+-----END RSA PRIVATE KEY-----
+```
 
 ### IPID
 
