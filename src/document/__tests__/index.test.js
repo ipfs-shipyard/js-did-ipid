@@ -1,4 +1,4 @@
-import createDocument from '../';
+import createDocument, { assertDocument } from '../';
 import { mockDid, mockContent, mockPublickKey1, mockPublickKey2, mockService1, mockService2 } from './mocks';
 
 global.Date = class Date {
@@ -363,5 +363,74 @@ describe('removeService', () => {
             service: [mockService1],
             updated: '2019-03-18T15:55:38.636Z',
         });
+    });
+});
+
+describe('assertDocument', () => {
+    it('should assert document successfully', () => {
+        const mockDocument = {
+            '@context': ['https://w3id.org/did/v1', 'https://example.context.org'],
+            id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
+        };
+
+        expect(() => assertDocument(mockDocument)).not.toThrow();
+    });
+
+    it('should throw if document is not a plain object', () => {
+        const mockDocument = 'fooBar';
+
+        expect(() => assertDocument(mockDocument)).toThrow('Document content must be a plain object.');
+    });
+
+    it('should throw if document has no context property', () => {
+        const mockDocument = {
+            id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
+        };
+
+        expect(() => assertDocument(mockDocument)).toThrow('Document content must contain "@context" property.');
+    });
+
+    it('should throw if document has context property with invalid type', () => {
+        const mockDocument = {
+            '@context': 123,
+            id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
+        };
+
+        expect(() => assertDocument(mockDocument)).toThrow('Document "@context" value must be a string or an ordered set.');
+    });
+
+    it('should throw if document has multiple contexts but the first one is not the default', () => {
+        const mockDocument = {
+            '@context': ['fooBar', 'https://w3id.org/did/v1'],
+            id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
+        };
+
+        expect(() => assertDocument(mockDocument)).toThrow('First "@context" value must be: "https://w3id.org/did/v1". Found: "fooBar"');
+    });
+
+    it('should throw if document has just one context and is not the default', () => {
+        const mockDocument = {
+            '@context': 'fooBar',
+            id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
+        };
+
+        expect(() => assertDocument(mockDocument)).toThrow('Document with only one "@context" value must be none other than: "https://w3id.org/did/v1". Found: "fooBar"');
+    });
+
+    it('should throw if document has no id property', () => {
+        const mockDocument = {
+            '@context': 'https://w3id.org/did/v1',
+        };
+
+        expect(() => assertDocument(mockDocument)).toThrow('Document content must contain "id" property.');
+    });
+
+    it('should throw if document has an id with an invalid did', () => {
+        const mockDocument = {
+            '@context': 'https://w3id.org/did/v1',
+            id: 'did:foo!bar',
+        };
+
+        expect(() => assertDocument(mockDocument)).toThrow('Document "id" must be a valid DID. Found: "did:foo!bar"');
     });
 });

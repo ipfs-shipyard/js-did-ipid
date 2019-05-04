@@ -1,9 +1,8 @@
 import { omitBy, isArray, isUndefined } from 'lodash';
-
 import service from './service';
 import publicKey from './publicKey';
 import authentication from './authentication';
-import { generateDocument, isEquivalentId } from './utils';
+import { generateDocument, isEquivalentId, assertDocument } from './utils';
 
 class Document {
     #content;
@@ -102,5 +101,7 @@ const createDocument = (did, content) => {
 
     return new Document(content);
 };
+
+export { assertDocument };
 
 export default createDocument;

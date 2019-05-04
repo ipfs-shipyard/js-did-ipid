@@ -80,6 +80,7 @@
   },
   "dependencies": {
     "buffer": "^5.2.1",
+    "es6-error": "^4.1.1",
     "libp2p-crypto": "^0.16.1",
     "lodash": "^4.17.11",
     "peer-id": "^0.12.2",

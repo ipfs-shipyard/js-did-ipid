@@ -1,8 +1,8 @@
-class BaseError extends Error {
+import ExtendableError from 'es6-error';
+
+class BaseError extends ExtendableError {
     constructor(message, code) {
         super(message);
-
-        Error.captureStackTrace(this, this.constructor);
 
         Object.assign(this, { code });
     }
@@ -65,8 +65,10 @@ export class InvalidService extends BaseError {
 // IPFS/IPNS Based ------------------------------------------
 
 export class InvalidDid extends BaseError {
-    constructor(did) {
-        super(`Invalid DID: ${did}`, 'INVALID_DID');
+    constructor(did, message) {
+        message = message || `Invalid DID: ${did}`;
+
+        super(message, 'INVALID_DID');
     }
 }
 
@@ -83,6 +85,18 @@ export class UnavailableIpfs extends BaseError {
         message = message || 'IPFS node is unavailable.';
 
         super(message, 'IPFS_UNAVAILABLE');
+    }
+}
+
+// ----------------------------------------------------------
+
+// Document Based -----------------------------------
+
+export class InvalidDocument extends BaseError {
+    constructor(message) {
+        message = message || 'Document is invalid.';
+
+        super(message, 'INVALID_DOCUMENT');
     }
 }
 
