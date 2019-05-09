@@ -1,10 +1,20 @@
-import ExtendableError from 'es6-error';
-
-class BaseError extends ExtendableError {
-    constructor(message, code) {
+export class BaseError extends Error {
+    constructor(message, code, props) {
         super(message);
 
-        Object.assign(this, { code });
+        Object.assign(this, {
+            ...props,
+            code,
+            name: this.constructor.name,
+        });
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, this.constructor);
+
+            return;
+        }
+
+        this.stack = (new Error(message)).stack;
     }
 }
 
@@ -65,10 +75,10 @@ export class InvalidService extends BaseError {
 // IPFS/IPNS Based ------------------------------------------
 
 export class InvalidDid extends BaseError {
-    constructor(did, message) {
+    constructor(did, message, props) {
         message = message || `Invalid DID: ${did}`;
 
-        super(message, 'INVALID_DID');
+        super(message, 'INVALID_DID', props);
     }
 }
 
@@ -97,6 +107,12 @@ export class InvalidDocument extends BaseError {
         message = message || 'Document is invalid.';
 
         super(message, 'INVALID_DOCUMENT');
+    }
+}
+
+export class InvalidIdPrefix extends BaseError {
+    constructor() {
+        super('Id prefix should be a string without reserved characters: ["#", ";"]', 'INVALID_ID_PREFIX');
     }
 }
 

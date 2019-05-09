@@ -1,7 +1,7 @@
-import { isEquivalentId, createId } from './utils';
+import { SEPARATORS, isEquivalentId, createId } from './utils';
 import { DuplicateService, InvalidService } from '../utils/errors';
 
-const SEPARATOR = ';';
+const SEPARATOR = SEPARATORS.SERVICE;
 const REQUIRED = ['type', 'serviceEndpoint'];
 
 const assertId = (service, services) => {
@@ -28,5 +28,5 @@ const assert = (service, services) => {
 export default {
     assert,
     separator: SEPARATOR,
-    createId: (did, fragment) => createId(did, fragment, SEPARATOR),
+    createId: (did, fragment, options) => createId(did, fragment, SEPARATOR, options),
 };

@@ -1,13 +1,24 @@
 import { isString, isPlainObject } from 'lodash';
 import { generateRandomString, isDidValid } from '../../utils';
-import { InvalidDocument } from '../../utils/errors';
+import { InvalidDocument, InvalidIdPrefix } from '../../utils/errors';
 
 const DEFAULT_CONTEXT = 'https://w3id.org/did/v1';
 
-export const createId = (did, fragment, separator) => {
+export const SEPARATORS = {
+    PUBLIC_KEY: '#',
+    SERVICE: ';',
+};
+
+export const createId = (did, fragment, separator, options) => {
+    const { prefix = '' } = { ...options };
+
+    if (typeof prefix !== 'string' || Object.values(SEPARATORS).some((sep) => prefix.includes(sep))) {
+        throw new InvalidIdPrefix();
+    }
+
     fragment = fragment || generateRandomString();
 
-    return `${did}${separator}${fragment}`;
+    return `${did}${separator}${prefix}${fragment}`;
 };
 
 export const isEquivalentId = (id1, id2, separator) => {

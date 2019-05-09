@@ -41,7 +41,7 @@ const didDocument = await ipid.resolve('did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRa
 //=> Resolves a DID and returns the respective DID Document.
 
 const didDocument = await ipid.create(pem, (document) => {
-	const publicKey = document.addPublicKey({
+    const publicKey = document.addPublicKey({
     	type: 'RsaVerificationKey2018',
         publicKeyHex: '02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71',
     });
@@ -52,19 +52,19 @@ const didDocument = await ipid.create(pem, (document) => {
     	id: 'hub',
     	type: 'HubService',
     	serviceEndpoint: 'https://hub.example.com/',
-  	});
+    });
 });
 //=> Creates a new DID and the corresponding DID Document based on the provided private key pem.
 //=> The DID Document is published with the added publicKey, authentication and service.
 
 const didDocument = await ipid.update(pem, (document) => {
-	document.removeService('hub');
+    document.removeService('hub');
  
     document.addService({
     	id: 'messages',
     	type: 'MessagingService',
     	serviceEndpoint: 'https://example.com/messages/8377464',
-  	});
+    });
 });
 //=> Updates a DID Document based on the DID associated to the provided private key pem.
 //=> The DID Document is published without the `hub` service and with a new one called `messages`. 
@@ -79,7 +79,7 @@ Returns the DID associated to a private key in PEM format.
 
 #### pem
 
-Type: `String`
+Type: `string`
 
 A private key in PEM format.
 
@@ -118,7 +118,7 @@ Returns a Promise that resolves to the DID Document.
 
 ##### did
 
-Type: `String`
+Type: `string`
 
 The DID to resolve.
 
@@ -135,7 +135,7 @@ Returns a Promise that resolves to the DID Document.
 
 ##### privateKeyPem
 
-Type: `String`
+Type: `string`
 
 A private key in PEM format.
 
@@ -162,7 +162,7 @@ Returns a Promise that resolves to the DID Document.
 
 ##### privateKeyPem
 
-Type: `String`
+Type: `string`
 
 A private key in PEM format.
 
@@ -187,7 +187,7 @@ A function that receives a Document instance that provides methods to modify its
 
 Returns the current state of the documents content.
 
-#### addPublicKey(publicKey)
+#### addPublicKey(publicKey, [options])
 
 Adds a new Public Key to the document.
 
@@ -203,6 +203,18 @@ An object with all the Public Key required properties as defined in the [DID Pub
 - If no `id` is provided, one will be generated.
 - If no `controller` is provided, it is assumed that it is its own DID. 
 
+##### options
+
+Type: `Object`
+
+Options to be used while adding a public key.
+
+###### idPrefix
+
+Type: `string`
+
+A prefix to be added to the public key id.
+
 #### revokePublicKey(id)
 
 Revokes a Public Key from the document.
@@ -211,7 +223,7 @@ Also revokes an authentication that references this public key.
 
 ##### id
 
-Type: `String` 
+Type: `string` 
 
 The id of the public key.
 
@@ -223,7 +235,7 @@ Returns the added authentication.
 
 ##### authentication
 
-Type: `String`
+Type: `string`
 
 The id of the public key that is being referenced.
 
@@ -233,11 +245,11 @@ Revokes an Authentication from the document.
 
 ##### id
 
-Type: `String` 
+Type: `string` 
 
 The id authentication.
 
-#### addService(service)
+#### addService(service, [options])
 
 Adds a new Service Endpoint to the document.
 
@@ -252,13 +264,25 @@ An object with all the Service Endpoint required properties as defined in the [D
 - `id` should be provided without a prefixed did.
 - If no `id` is provided, one will be generated.
 
+##### options
+
+Type: `Object`
+
+Options to be used while adding a service.
+
+###### idPrefix
+
+Type: `string`
+
+A prefix to be added to the service id.
+
 #### removeService(id)
 
 Revokes a Service Endpoint from the document.
 
 ##### id
 
-Type: `String` 
+Type: `string` 
 
 The id of the service endpoint.
 

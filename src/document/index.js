@@ -20,8 +20,10 @@ class Document {
         return omitBy(this.#content, (prop) => isUndefined(prop) || (isArray(prop) && prop.length === 0));
     }
 
-    addPublicKey(props) {
-        props.id = publicKey.createId(this.#content.id, props.id);
+    addPublicKey(props, options) {
+        const { idPrefix } = { ...options };
+
+        props.id = publicKey.createId(this.#content.id, props.id, { prefix: idPrefix });
         props.controller = props.controller || this.#content.id;
 
         publicKey.assert(props, this.#content.publicKey);
@@ -67,8 +69,10 @@ class Document {
         this.#refreshUpdated();
     }
 
-    addService(props) {
-        props.id = service.createId(this.#content.id, props.id);
+    addService(props, options) {
+        const { idPrefix } = { ...options };
+
+        props.id = service.createId(this.#content.id, props.id, { prefix: idPrefix });
 
         service.assert(props, this.#content.service);
 

@@ -63,6 +63,28 @@ describe('addPublicKey', () => {
         });
     });
 
+    it('should add public key successfully with prefix', async () => {
+        const document = await createDocument(mockDid);
+        const pk = document.addPublicKey({
+            type: 'myType',
+            publicKeyHex: '1A2B3C',
+        }, { idPrefix: 'foobar-' });
+
+        const expectedResult = {
+            id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG#foobar-randomString',
+            controller: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG',
+            type: 'myType',
+            publicKeyHex: '1A2B3C',
+        };
+
+        expect(pk).toEqual(expectedResult);
+        expect(document.getContent()).toEqual({
+            ...mockContent,
+            publicKey: [expectedResult],
+            updated: '2019-03-18T15:55:38.636Z',
+        });
+    });
+
     it('should not accept duplicate ids', async () => {
         const document = await createDocument(mockDid);
 
@@ -127,6 +149,17 @@ describe('addPublicKey', () => {
                 publicKeyFoo: 'bar',
             })
         ).toThrow('Encoding `publicKeyFoo` is invalid');
+    });
+
+    it('should not accept publicKey with invalid id prefix', async () => {
+        const document = await createDocument(mockDid);
+
+        expect(() =>
+            document.addPublicKey({
+                type: 'myType',
+                publicKeyHex: '1A2B3C',
+            }, { idPrefix: 'foobar#' })
+        ).toThrow('Id prefix should be a string without reserved characters: ["#", ";"]');
     });
 });
 
@@ -287,6 +320,27 @@ describe('addService', () => {
         });
     });
 
+    it('should add service successfully with prefix', async () => {
+        const document = await createDocument(mockDid);
+        const srvc = document.addService({
+            type: 'myServiceType',
+            serviceEndpoint: 'http://service.foo.bar',
+        }, { idPrefix: 'foobar-' });
+
+        const expectedResult = {
+            id: 'did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG;foobar-randomString',
+            type: 'myServiceType',
+            serviceEndpoint: 'http://service.foo.bar',
+        };
+
+        expect(srvc).toEqual(expectedResult);
+        expect(document.getContent()).toEqual({
+            ...mockContent,
+            service: [expectedResult],
+            updated: '2019-03-18T15:55:38.636Z',
+        });
+    });
+
     it('should not accept duplicate ids', async () => {
         const document = await createDocument(mockDid);
 
@@ -330,6 +384,17 @@ describe('addService', () => {
         document.addService({ ...mockService1, id: 'Service1', foo: 'bar' });
 
         expect(document.getContent().service[0]).toEqual({ ...mockService1, foo: 'bar' });
+    });
+
+    it('should not accept service with invalid id prefix', async () => {
+        const document = await createDocument(mockDid);
+
+        expect(() => {
+            document.addService({
+                type: 'myServiceType',
+                serviceEndpoint: 'http://service.foo.bar',
+            }, { idPrefix: 'foobar;' });
+        }).toThrow('Id prefix should be a string without reserved characters: ["#", ";"]');
     });
 });
 

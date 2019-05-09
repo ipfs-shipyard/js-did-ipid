@@ -29,7 +29,7 @@ class Ipid {
                 throw err;
             }
 
-            throw new InvalidDid(did, `Unable to resolve document with did: ${did}`);
+            throw new InvalidDid(did, `Unable to resolve document with DID: ${did}`, { originalError: err.message });
         }
     }
 
