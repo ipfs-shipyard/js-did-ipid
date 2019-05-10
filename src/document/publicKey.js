@@ -1,7 +1,7 @@
-import { isEquivalentId, createId } from './utils';
+import { SEPARATORS, isEquivalentId, createId } from './utils';
 import { DuplicatePublicKey, InvalidPublicKey } from '../utils/errors';
 
-const SEPARATOR = '#';
+const SEPARATOR = SEPARATORS.PUBLIC_KEY;
 const REQUIRED = ['id', 'type', 'controller'];
 const ENCODINGS = [
     'publicKeyPem',
@@ -49,5 +49,5 @@ const assert = (publicKey, publicKeys) => {
 export default {
     assert,
     separator: SEPARATOR,
-    createId: (did, fragment) => createId(did, fragment, SEPARATOR),
+    createId: (did, fragment, options) => createId(did, fragment, SEPARATOR, options),
 };

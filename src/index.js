@@ -1,13 +1,7 @@
 import { Buffer } from 'buffer';
-import createDocument from './document';
+import createDocument, { assertDocument } from './document';
 import { generateRandomString, generateDid, parseDid, pemToBuffer } from './utils';
 import { UnavailableIpfs, InvalidDid, IllegalCreate } from './utils/errors';
-
-export const getDid = async (pem) => {
-    const key = await pemToBuffer(pem);
-
-    return generateDid(key);
-};
 
 class Ipid {
     #ipfs;
@@ -25,9 +19,17 @@ class Ipid {
             const { path } = await this.#ipfs.name.resolve(identifier, {});
             const [{ content }] = await this.#ipfs.get(path, {});
 
-            return JSON.parse(content.toString());
-        } catch (e) {
-            throw new InvalidDid(did);
+            const parsedContent = JSON.parse(content.toString());
+
+            assertDocument(parsedContent);
+
+            return parsedContent;
+        } catch (err) {
+            if (err.code === 'INVALID_DOCUMENT') {
+                throw err;
+            }
+
+            throw new InvalidDid(did, `Unable to resolve document with DID: ${did}`, { originalError: err.message });
         }
     }
 
@@ -36,7 +38,7 @@ class Ipid {
 
         try {
             await this.resolve(did);
-        } catch (e) {
+        } catch (err) {
             const document = createDocument(did);
 
             operations(document);
@@ -98,6 +100,12 @@ class Ipid {
     #generateKeyName = () =>
         `js-ipid-${generateRandomString()}`;
 }
+
+export const getDid = async (pem) => {
+    const key = await pemToBuffer(pem);
+
+    return generateDid(key);
+};
 
 const createIpid = async (ipfs, { lifetime } = {}) => {
     if (!ipfs || !ipfs.isOnline()) {

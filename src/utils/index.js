@@ -32,6 +32,16 @@ export const parseDid = (did) => {
     return { method: match[1], identifier: match[2] };
 };
 
+export const isDidValid = (did) => {
+    try {
+        parseDid(did);
+
+        return true;
+    } catch (err) {
+        return false;
+    }
+};
+
 export const generateRandomString = () =>
     Math.random()
     .toString(36)

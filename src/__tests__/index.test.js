@@ -56,7 +56,7 @@ describe('resolve', () => {
         const ipfs = { ...mockIpfs, name: { resolve: jest.fn((identifier, options, callback) => callback('foo', {})) } };
         const ipid = await createIpid(ipfs);
 
-        await expect(ipid.resolve(mockDid)).rejects.toThrow('Invalid DID: did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG');
+        await expect(ipid.resolve(mockDid)).rejects.toThrow('Unable to resolve document with DID: did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG');
 
         expect(ipfs.name.resolve).toHaveBeenCalledTimes(1);
         expect(ipfs.name.resolve.mock.calls[0][0]).toEqual(mockIpnsHash);
@@ -68,7 +68,20 @@ describe('resolve', () => {
         const ipfs = { ...mockIpfs, get: jest.fn((identifier, options, callback) => callback('foo', {})) };
         const ipid = await createIpid(ipfs);
 
-        await expect(ipid.resolve(mockDid)).rejects.toThrow('Invalid DID: did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG');
+        await expect(ipid.resolve(mockDid)).rejects.toThrow('Unable to resolve document with DID: did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG');
+
+        expect(ipfs.name.resolve).toHaveBeenCalledTimes(1);
+        expect(ipfs.name.resolve.mock.calls[0][0]).toEqual(mockIpnsHash);
+
+        expect(ipfs.get).toHaveBeenCalledTimes(1);
+        expect(ipfs.get.mock.calls[0][0]).toEqual(mockPath);
+    });
+
+    it('should fail if document content is invalid', async () => {
+        const ipfs = { ...mockIpfs, get: jest.fn(async () => [{ content: '123' }]) };
+        const ipid = await createIpid(ipfs);
+
+        await expect(ipid.resolve(mockDid)).rejects.toThrow('Document content must be a plain object.');
 
         expect(ipfs.name.resolve).toHaveBeenCalledTimes(1);
         expect(ipfs.name.resolve.mock.calls[0][0]).toEqual(mockIpnsHash);

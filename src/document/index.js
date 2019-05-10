@@ -1,9 +1,8 @@
 import { omitBy, isArray, isUndefined } from 'lodash';
-
 import service from './service';
 import publicKey from './publicKey';
 import authentication from './authentication';
-import { generateDocument, isEquivalentId } from './utils';
+import { generateDocument, isEquivalentId, assertDocument } from './utils';
 
 class Document {
     #content;
@@ -21,8 +20,10 @@ class Document {
         return omitBy(this.#content, (prop) => isUndefined(prop) || (isArray(prop) && prop.length === 0));
     }
 
-    addPublicKey(props) {
-        props.id = publicKey.createId(this.#content.id, props.id);
+    addPublicKey(props, options) {
+        const { idPrefix } = { ...options };
+
+        props.id = publicKey.createId(this.#content.id, props.id, { prefix: idPrefix });
         props.controller = props.controller || this.#content.id;
 
         publicKey.assert(props, this.#content.publicKey);
@@ -68,8 +69,10 @@ class Document {
         this.#refreshUpdated();
     }
 
-    addService(props) {
-        props.id = service.createId(this.#content.id, props.id);
+    addService(props, options) {
+        const { idPrefix } = { ...options };
+
+        props.id = service.createId(this.#content.id, props.id, { prefix: idPrefix });
 
         service.assert(props, this.#content.service);
 
@@ -102,5 +105,7 @@ const createDocument = (did, content) => {
 
     return new Document(content);
 };
+
+export { assertDocument };
 
 export default createDocument;
