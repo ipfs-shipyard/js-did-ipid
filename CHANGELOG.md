@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/ipfs-shipyard/js-did-ipid/compare/v0.2.0...v0.3.0) (2019-05-20)
+
+
+### Features
+
+* use dag instead of files api ([#11](https://github.com/ipfs-shipyard/js-did-ipid/issues/11)) ([bf86c34](https://github.com/ipfs-shipyard/js-did-ipid/commit/bf86c34))
+
+
+### BREAKING CHANGES
+
+* objects are stored in a dag now
+
+
+
 <a name="0.2.0"></a>
 # [0.2.0](https://github.com/ipfs-shipyard/js-did-ipid/compare/v0.1.1...v0.2.0) (2019-05-10)
 
