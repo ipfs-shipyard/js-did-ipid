@@ -1,6 +1,6 @@
-import { Buffer } from 'buffer';
+export const mockHash = 'zdpuApA2CCoPHQEoP4nResbK2dq2zawFX3verNkMFmNbpDnXZ';
 
-export const mockPath = '/ipfs/QmYo41NNwratMSFut9oyZHcz2RCwctK5B2GHYfHoFFoG2H';
+export const mockPath = `/ipfs/${mockHash}`;
 
 export const mockIpnsHash = 'QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG';
 
@@ -50,22 +50,14 @@ export const createMockIpfs = () => {
             resolve: jest.fn(async () => ({ path: mockPath })),
             publish: jest.fn(async () => {}),
         },
-        add: jest.fn(async () => [{
-            path: 'QmdVJSHpB75K3EbyVC9zvsPp6RfYAjonbr4yP6Zzuggfmc',
-            hash: 'QmdVJSHpB75K3EbyVC9zvsPp6RfYAjonbr4yP6Zzuggfmc',
-            size: 569,
-        }]),
-        get: jest.fn(async (path) =>
-            [{
-                path,
-                depth: 0,
-                name: path,
-                size: 558,
-                hash: Buffer.from([1, 2, 3]),
-                content: Buffer.from(JSON.stringify(mockDocument)),
-                type: 'file',
-            }],
-        ),
+        dag: {
+            put: jest.fn(async () => ({
+                toBaseEncodedString: () => mockHash,
+            })),
+            get: jest.fn(async () => ({
+                value: mockDocument,
+            })),
+        },
         key: {
             list: jest.fn(async () => keychainKeys),
             rm: jest.fn(async (keyName) => rmKey(keyName)),

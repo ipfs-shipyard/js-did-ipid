@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import createDocument, { assertDocument } from './document';
 import { generateRandomString, generateDid, parseDid, pemToBuffer } from './utils';
 import { UnavailableIpfs, InvalidDid, IllegalCreate } from './utils/errors';
@@ -16,14 +15,13 @@ class Ipid {
         const { identifier } = parseDid(did);
 
         try {
-            const { path } = await this.#ipfs.name.resolve(identifier, {});
-            const [{ content }] = await this.#ipfs.get(path, {});
+            const { path } = await this.#ipfs.name.resolve(identifier);
+            const cidStr = path.replace(/^\/ipfs\//, '');
+            const { value: content } = await this.#ipfs.dag.get(cidStr);
 
-            const parsedContent = JSON.parse(content.toString());
+            assertDocument(content);
 
-            assertDocument(parsedContent);
-
-            return parsedContent;
+            return content;
         } catch (err) {
             if (err.code === 'INVALID_DOCUMENT') {
                 throw err;
@@ -66,7 +64,8 @@ class Ipid {
         await this.#importKey(keyName, pem);
 
         try {
-            const [{ path }] = await this.#ipfs.add(Buffer.from(JSON.stringify(content)));
+            const cid = await this.#ipfs.dag.put(content);
+            const path = `/ipfs/${cid.toBaseEncodedString()}`;
 
             await this.#ipfs.name.publish(path, {
                 lifetime: this.#lifetime,
@@ -91,10 +90,10 @@ class Ipid {
         await this.#ipfs.key.rm(keyName);
     }
 
-    #importKey = async (keyName, pem) => {
+    #importKey = async (keyName, pem, password) => {
         await this.#removeKey(keyName);
 
-        await this.#ipfs.key.import(keyName, pem, undefined);
+        await this.#ipfs.key.import(keyName, pem, password);
     }
 
     #generateKeyName = () =>

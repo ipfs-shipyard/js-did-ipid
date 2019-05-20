@@ -1,6 +1,5 @@
-import { Buffer } from 'buffer';
 import createIpid from '../index';
-import { createMockIpfs, mockPath, mockIpnsHash, mockDid, mockDocument, mockPem } from './mocks';
+import { createMockIpfs, mockHash, mockIpnsHash, mockDid, mockDocument, mockPem } from './mocks';
 
 global.Date = class Date {
     constructor() {
@@ -48,12 +47,12 @@ describe('resolve', () => {
         expect(mockIpfs.name.resolve).toHaveBeenCalledTimes(1);
         expect(mockIpfs.name.resolve.mock.calls[0][0]).toEqual(mockIpnsHash);
 
-        expect(mockIpfs.get).toHaveBeenCalledTimes(1);
-        expect(mockIpfs.get.mock.calls[0][0]).toEqual(mockPath);
+        expect(mockIpfs.dag.get).toHaveBeenCalledTimes(1);
+        expect(mockIpfs.dag.get.mock.calls[0][0]).toEqual(mockHash);
     });
 
     it('should fail if no ipns record found', async () => {
-        const ipfs = { ...mockIpfs, name: { resolve: jest.fn((identifier, options, callback) => callback('foo', {})) } };
+        const ipfs = { ...mockIpfs, name: { resolve: jest.fn(async () => { throw new Error('foo'); }) } };
         const ipid = await createIpid(ipfs);
 
         await expect(ipid.resolve(mockDid)).rejects.toThrow('Unable to resolve document with DID: did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG');
@@ -61,11 +60,11 @@ describe('resolve', () => {
         expect(ipfs.name.resolve).toHaveBeenCalledTimes(1);
         expect(ipfs.name.resolve.mock.calls[0][0]).toEqual(mockIpnsHash);
 
-        expect(ipfs.get).toHaveBeenCalledTimes(0);
+        expect(ipfs.dag.get).toHaveBeenCalledTimes(0);
     });
 
     it('should fail if can\'t get file', async () => {
-        const ipfs = { ...mockIpfs, get: jest.fn((identifier, options, callback) => callback('foo', {})) };
+        const ipfs = { ...mockIpfs, dag: { get: jest.fn(async () => { throw new Error('foo'); }) } };
         const ipid = await createIpid(ipfs);
 
         await expect(ipid.resolve(mockDid)).rejects.toThrow('Unable to resolve document with DID: did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG');
@@ -73,12 +72,12 @@ describe('resolve', () => {
         expect(ipfs.name.resolve).toHaveBeenCalledTimes(1);
         expect(ipfs.name.resolve.mock.calls[0][0]).toEqual(mockIpnsHash);
 
-        expect(ipfs.get).toHaveBeenCalledTimes(1);
-        expect(ipfs.get.mock.calls[0][0]).toEqual(mockPath);
+        expect(ipfs.dag.get).toHaveBeenCalledTimes(1);
+        expect(ipfs.dag.get.mock.calls[0][0]).toEqual(mockHash);
     });
 
     it('should fail if document content is invalid', async () => {
-        const ipfs = { ...mockIpfs, get: jest.fn(async () => [{ content: '123' }]) };
+        const ipfs = { ...mockIpfs, dag: { get: jest.fn(async () => ({ content: '123' })) } };
         const ipid = await createIpid(ipfs);
 
         await expect(ipid.resolve(mockDid)).rejects.toThrow('Document content must be a plain object.');
@@ -86,8 +85,8 @@ describe('resolve', () => {
         expect(ipfs.name.resolve).toHaveBeenCalledTimes(1);
         expect(ipfs.name.resolve.mock.calls[0][0]).toEqual(mockIpnsHash);
 
-        expect(ipfs.get).toHaveBeenCalledTimes(1);
-        expect(ipfs.get.mock.calls[0][0]).toEqual(mockPath);
+        expect(ipfs.dag.get).toHaveBeenCalledTimes(1);
+        expect(ipfs.dag.get.mock.calls[0][0]).toEqual(mockHash);
     });
 });
 
@@ -113,12 +112,12 @@ describe('create', () => {
 
         expect(mockIpfs.key.rm).toHaveBeenCalledTimes(1);
 
-        expect(mockIpfs.add).toHaveBeenCalledTimes(1);
-        expect(mockIpfs.add).toHaveBeenCalledWith(Buffer.from(JSON.stringify(document)));
+        expect(mockIpfs.dag.put).toHaveBeenCalledTimes(1);
+        expect(mockIpfs.dag.put).toHaveBeenCalledWith(document);
 
         expect(mockIpfs.name.publish).toHaveBeenCalledTimes(1);
         expect(mockIpfs.name.publish).toHaveBeenCalledWith(
-            'QmdVJSHpB75K3EbyVC9zvsPp6RfYAjonbr4yP6Zzuggfmc',
+            '/ipfs/zdpuApA2CCoPHQEoP4nResbK2dq2zawFX3verNkMFmNbpDnXZ',
             { key: 'js-ipid-randomString', lifetime: '87600h', ttl: '87600h' }
         );
     });
@@ -166,12 +165,12 @@ describe('update', () => {
 
         expect(mockIpfs.key.rm).toHaveBeenCalledTimes(1);
 
-        expect(mockIpfs.add).toHaveBeenCalledTimes(1);
-        expect(mockIpfs.add).toHaveBeenCalledWith(Buffer.from(JSON.stringify(document)));
+        expect(mockIpfs.dag.put).toHaveBeenCalledTimes(1);
+        expect(mockIpfs.dag.put).toHaveBeenCalledWith(document);
 
         expect(mockIpfs.name.publish).toHaveBeenCalledTimes(1);
         expect(mockIpfs.name.publish).toHaveBeenCalledWith(
-            'QmdVJSHpB75K3EbyVC9zvsPp6RfYAjonbr4yP6Zzuggfmc',
+            '/ipfs/zdpuApA2CCoPHQEoP4nResbK2dq2zawFX3verNkMFmNbpDnXZ',
             { key: 'js-ipid-randomString', lifetime: '87600h', ttl: '87600h' }
         );
     });
