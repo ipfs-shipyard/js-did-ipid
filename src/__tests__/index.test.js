@@ -28,12 +28,12 @@ describe('factory', () => {
         expect(typeof ipid.update).toEqual('function');
     });
 
-    it('should not create ipid if ipfs is not provided', async () => {
-        expect(createIpid()).rejects.toThrow('IPFS node is unavailable');
-    });
-
     it('should not create ipid if ipfs is not online', async () => {
         expect(createIpid({ isOnline: () => false })).rejects.toThrow('IPFS node is unavailable');
+    });
+
+    it('should account for isOnline not being available (e.g.: using HTTP Client)', async () => {
+        await createIpid({ isOnline: undefined });
     });
 });
 
