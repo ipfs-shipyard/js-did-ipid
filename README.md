@@ -45,9 +45,9 @@ const didDocument = await ipid.create(pem, (document) => {
     	type: 'RsaVerificationKey2018',
         publicKeyHex: '02b97c30de767f084ce3080168ee293053ba33b235d7116a3263d29f1450936b71',
     });
-    
+
     const authentication = document.addAuthentication(publicKey.id);
-    
+
     const service = document.addService({
     	id: 'hub',
     	type: 'HubService',
@@ -59,7 +59,7 @@ const didDocument = await ipid.create(pem, (document) => {
 
 const didDocument = await ipid.update(pem, (document) => {
     document.removeService('hub');
- 
+
     document.addService({
     	id: 'messages',
     	type: 'MessagingService',
