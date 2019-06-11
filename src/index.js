@@ -106,7 +106,7 @@ export const getDid = async (pem) => {
     return generateDid(key);
 };
 
-const createIpid = async (ipfs, { lifetime } = {}) => {
+const createIpid = (ipfs, { lifetime } = {}) => {
     if (typeof ipfs.isOnline === 'function' && !ipfs.isOnline()) {
         throw new UnavailableIpfs();
     }

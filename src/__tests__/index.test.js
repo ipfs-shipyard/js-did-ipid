@@ -20,26 +20,26 @@ beforeEach(() => {
 });
 
 describe('factory', () => {
-    it('should create ipid with all specification methods', async () => {
-        const ipid = await createIpid(mockIpfs);
+    it('should create ipid with all specification methods', () => {
+        const ipid = createIpid(mockIpfs);
 
         expect(typeof ipid.resolve).toEqual('function');
         expect(typeof ipid.create).toEqual('function');
         expect(typeof ipid.update).toEqual('function');
     });
 
-    it('should not create ipid if ipfs is not online', async () => {
-        expect(createIpid({ isOnline: () => false })).rejects.toThrow('IPFS node is unavailable');
+    it('should not create ipid if ipfs is not online', () => {
+        expect(() => createIpid({ isOnline: () => false })).toThrow('IPFS node is unavailable');
     });
 
-    it('should account for isOnline not being available (e.g.: using HTTP Client)', async () => {
-        await createIpid({ isOnline: undefined });
+    it('should account for isOnline not being available (e.g.: using HTTP Client)', () => {
+        createIpid({ isOnline: undefined });
     });
 });
 
 describe('resolve', () => {
     it('should resolve successfully', async () => {
-        const ipid = await createIpid(mockIpfs);
+        const ipid = createIpid(mockIpfs);
         const document = await ipid.resolve(mockDid);
 
         expect(document).toEqual(mockDocument);
@@ -53,7 +53,7 @@ describe('resolve', () => {
 
     it('should fail if no ipns record found', async () => {
         const ipfs = { ...mockIpfs, name: { resolve: jest.fn(async () => { throw new Error('foo'); }) } };
-        const ipid = await createIpid(ipfs);
+        const ipid = createIpid(ipfs);
 
         await expect(ipid.resolve(mockDid)).rejects.toThrow('Unable to resolve document with DID: did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG');
 
@@ -65,7 +65,7 @@ describe('resolve', () => {
 
     it('should fail if can\'t get file', async () => {
         const ipfs = { ...mockIpfs, dag: { get: jest.fn(async () => { throw new Error('foo'); }) } };
-        const ipid = await createIpid(ipfs);
+        const ipid = createIpid(ipfs);
 
         await expect(ipid.resolve(mockDid)).rejects.toThrow('Unable to resolve document with DID: did:ipid:QmUTE4cxTxihntPEFqTprgbqyyS9YRaRcC8FXp6PACEjFG');
 
@@ -78,7 +78,7 @@ describe('resolve', () => {
 
     it('should fail if document content is invalid', async () => {
         const ipfs = { ...mockIpfs, dag: { get: jest.fn(async () => ({ content: '123' })) } };
-        const ipid = await createIpid(ipfs);
+        const ipid = createIpid(ipfs);
 
         await expect(ipid.resolve(mockDid)).rejects.toThrow('Document content must be a plain object.');
 
@@ -93,7 +93,7 @@ describe('resolve', () => {
 describe('create', () => {
     it('should create successfully', async () => {
         const operations = jest.fn();
-        const ipid = await createIpid(mockIpfs);
+        const ipid = createIpid(mockIpfs);
 
         ipid.resolve = jest.fn(() => { throw new Error('foo'); });
 
@@ -124,7 +124,7 @@ describe('create', () => {
 
     it('should fail if document already exists', async () => {
         const operations = jest.fn();
-        const ipid = await createIpid(mockIpfs);
+        const ipid = createIpid(mockIpfs);
 
         await expect(ipid.create(mockPem, operations)).rejects.toThrow('Document already exists.');
 
@@ -133,7 +133,7 @@ describe('create', () => {
 
     it('should fail if a document operation fails', async () => {
         const operations = jest.fn(() => { throw new Error('Operation Failed'); });
-        const ipid = await createIpid(mockIpfs);
+        const ipid = createIpid(mockIpfs);
 
         ipid.resolve = jest.fn(() => { throw new Error('foo'); });
 
@@ -146,7 +146,7 @@ describe('create', () => {
 describe('update', () => {
     it('should update successfully', async () => {
         const operations = jest.fn();
-        const ipid = await createIpid(mockIpfs);
+        const ipid = createIpid(mockIpfs);
 
         ipid.resolve = jest.fn(() => mockDocument);
 
@@ -177,7 +177,7 @@ describe('update', () => {
 
     it('should fail if no document available', async () => {
         const operations = jest.fn();
-        const ipid = await createIpid(mockIpfs);
+        const ipid = createIpid(mockIpfs);
 
         ipid.resolve = jest.fn(() => { throw new Error('foo'); });
 
