@@ -61,7 +61,7 @@
     "testRegex": "/__tests__/.*\\.test\\.js$"
   },
   "peerDependencies": {
-    "ipfs": "^0.35.0"
+    "ipfs": "^0.35.0 || ^0.36.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
