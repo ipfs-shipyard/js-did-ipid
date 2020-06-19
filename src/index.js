@@ -1,6 +1,7 @@
 import createDocument, { assertDocument } from './document';
 import { generateRandomString, generateDid, parseDid, pemToBuffer } from './utils';
 import { UnavailableIpfs, InvalidDid, IllegalCreate } from './utils/errors';
+import last from 'it-last';
 
 class Ipid {
     #ipfs;
@@ -15,7 +16,7 @@ class Ipid {
         const { identifier } = parseDid(did);
 
         try {
-            const { path } = await this.#ipfs.name.resolve(identifier);
+            const path = await last(this.#ipfs.name.resolve(identifier));
             const cidStr = path.replace(/^\/ipfs\//, '');
             const { value: content } = await this.#ipfs.dag.get(cidStr);
 

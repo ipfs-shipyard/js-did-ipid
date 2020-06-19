@@ -44,10 +44,14 @@ export const createMockIpfs = () => {
         keychainKeys.push({ name: keyName });
     };
 
+    async function* resolveMock() {
+        yield mockPath;
+    }
+
     return {
         isOnline: jest.fn(() => true),
         name: {
-            resolve: jest.fn(async () => ({ path: mockPath })),
+            resolve: jest.fn(resolveMock),
             publish: jest.fn(async () => {}),
         },
         dag: {
